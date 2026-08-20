@@ -10,17 +10,40 @@ const INITIAL_TRANSACTIONS = [
   { id: "TRX-005", customer: "Rian Hidayat", items: "Mie Goreng x2", total: 24000, status: "Batal", date: "09:12 AM" },
 ];
 
-export default function Dashboard() {
+export default function App() {
+  // State Autentikasi
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+
+  // State Dashboard
   const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // State Form Input
   const [customer, setCustomer] = useState("");
   const [items, setItems] = useState("");
   const [total, setTotal] = useState("");
   const [status, setStatus] = useState("Selesai");
 
-  // Fungsi Tambah Transaksi
+  // Handler Login
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email === "admin@kasirpro.com" && password === "admin123") {
+      setIsLoggedIn(true);
+      setAuthError("");
+    } else {
+      setAuthError("Email atau Password salah! (Gunakan: admin@kasirpro.com / admin123)");
+    }
+  };
+
+  // Handler Logout
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setEmail("");
+    setPassword("");
+  };
+
+  // Handler Tambah Transaksi
   const handleAddTransaction = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customer || !items || !total) return;
@@ -35,8 +58,6 @@ export default function Dashboard() {
     };
 
     setTransactions([newTrx, ...transactions]);
-    
-    // Reset Form & Tutup Modal
     setCustomer("");
     setItems("");
     setTotal("");
@@ -44,6 +65,70 @@ export default function Dashboard() {
     setIsModalOpen(false);
   };
 
+  // TAMPILAN 1: HALAMAN LOGIN (Jika belum login)
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 text-slate-100 font-sans">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+          <div className="flex items-center gap-3 justify-center mb-6">
+            <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-indigo-600/40">
+              P
+            </div>
+            <span className="text-2xl font-bold tracking-wide">KasirPro</span>
+          </div>
+
+          <h2 className="text-xl font-semibold text-center mb-1">Selamat Datang Kembali</h2>
+          <p className="text-slate-400 text-xs text-center mb-6">Masuk untuk mengelola sistem transaksi toko Anda.</p>
+
+          {authError && (
+            <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center">
+              {authError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@kasirpro.com"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-98 text-white font-medium py-2.5 rounded-lg text-sm transition shadow-lg shadow-indigo-600/30 mt-2"
+            >
+              Masuk ke Dashboard
+            </button>
+          </form>
+
+          <div className="mt-6 pt-4 border-t border-slate-800 text-center">
+            <p className="text-xs text-slate-500">Akun Demo Standar:</p>
+            <p className="text-xs font-mono text-indigo-400 mt-1">Email: admin@kasirpro.com | Pass: admin123</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // TAMPILAN 2: HALAMAN DASHBOARD (Jika sudah login)
   return (
     <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans relative">
       {/* Sidebar Navigation */}
@@ -72,14 +157,23 @@ export default function Dashboard() {
           </nav>
         </div>
 
-        <div className="border-t border-slate-800 pt-4 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-slate-700 flex items-center justify-center font-semibold text-sm">
-            AD
+        <div className="border-t border-slate-800 pt-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-slate-700 flex items-center justify-center font-semibold text-sm">
+              AD
+            </div>
+            <div>
+              <p className="text-sm font-medium">Admin Store</p>
+              <p className="text-xs text-slate-400">admin@kasirpro.com</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium">Admin Store</p>
-            <p className="text-xs text-slate-400">admin@kasirpro.com</p>
-          </div>
+          <button 
+            onClick={handleLogout}
+            title="Keluar"
+            className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition"
+          >
+            🚪
+          </button>
         </div>
       </aside>
 
@@ -167,7 +261,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Modal Pop-up Form */}
+      {/* Modal Form */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 w-full max-w-md shadow-2xl">
